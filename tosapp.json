@@ -86,7 +86,7 @@
   "github_repo": "docmost",
   "upstream_version": "0.90.0",
   "release_tag_prefix": "v",
-  "version": "0.90.0-1",
+  "version": "0.90.0-2",
   "help": "https://github.com/Moechz/docmost/issues",
   "official": "https://github.com/docmost/docmost",
   "license": "AGPL-3.0",
