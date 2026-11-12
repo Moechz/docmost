@@ -2,6 +2,11 @@
 
 All notable user-visible changes to the Docmost TOS application package.
 
+## 0.90.0-3 — 2026-11-12
+
+### Changed
+- Icon: replaced the letter monogram with a functional vector mark that describes what the app does (the upstream project does not publish a compliant SVG).
+
 ## 0.90.0-2 — 2026-11-12
 
 ### Changed
