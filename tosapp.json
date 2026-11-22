@@ -26,59 +26,58 @@
     "TZ": "Asia/Shanghai",
     "APP_URL": "http://localhost:8087",
     "DATABASE_URL": "postgresql://docmost@docmostdocker-db:5432/docmost",
-    "REDIS_URL": "redis://docmostdocker-redis:6379"
+    "REDIS_URL": "redis://docmostdocker-redis:6379",
+    "DISABLE_TELEMETRY": "true"
   },
   "auth": "Docmost",
   "upstream_url": "https://github.com/docmost/docmost",
   "upstream_license": "AGPL-3.0",
-  "descript": "Docmost is a collaborative wiki and documentation platform: spaces, nested pages, realtime co-editing, diagrams, comments and permissions. This package runs the official Docker Hub image with its own PostgreSQL database and Redis cache as non-root containers; pages and uploads stay in the application data folder.",
-  "release_note": "1. First release.",
-  "important": "Open the first-run setup page to create the workspace and admin account. The stack contains three containers (app, PostgreSQL, Redis) reachable only from the app. Data lives under /Volume1/DockerAppData/docmostdocker/ and survives restarts and updates. The app generates its own APP_SECRET on first start. Needs DockerEngine; configure a registry mirror if Docker Hub is unreachable. Back up the data folder before uninstalling with data removal. Plain HTTP on the LAN.",
+  "descript": "Docmost is a self-hosted team wiki and documentation platform: spaces, nested pages, real-time co-editing, comments, page permissions, attachments, full-text search, version history and public sharing. This package runs the official Docker Hub image with its own PostgreSQL database and Redis cache as non-root containers; pages, attachments and accounts stay in the application data folder.",
+  "release_note": "Rectified per review comments (C3 C4 C5 C7 C9 C10 F1 F5 T1): added a complete privacy policy covering pages, attachments, accounts, sessions and WebSocket collaboration; rewrote the descriptions and the 23-language file; completed README, NOTICE and the repository layout; hardened the three-container stack (pinned images, per-service healthchecks, longer first-start grace, telemetry disabled, Redis AOF); T1 addressed with the current upstream 0.90.0 image and pinned PostgreSQL 16.16 / Redis 8.10.3 patch releases.",
+  "important": "Requires DockerEngine. Complete the first-run wizard to create the workspace and administrator account. Accounts, pages, comments, attachments and permissions are stored under DockerAppData/docmostdocker/ and survive restarts and updates. No mail server is configured by default: invitation and reset links go to the container log; configure SMTP for delivery. The UI is plain HTTP on the LAN - use a TLS reverse proxy before internet exposure. Deleting the data folder on uninstall erases everything.",
   "probe": {
-    "user_in_image": "nobody",
-    "entrypoint": null,
+    "image": "docmost/docmost:0.90.0",
+    "digest": "docmost/docmost@sha256:3be8d60d9d5fb84738d2eca5616646e4ee8fd3df8c3524c74ed1050089391afc",
+    "built": "2026-05-21T16:04:22Z",
+    "architecture": "linux/amd64 (probe host)",
+    "platforms": [
+      "x86_64",
+      "aarch64"
+    ],
+    "user_in_image": "node (uid 1000)",
+    "entrypoint": [
+      "docker-entrypoint.sh"
+    ],
     "cmd": [
-      "sh",
-      "start.sh",
-      "prd"
+      "pnpm",
+      "start"
     ],
     "exposed_ports": [
-      8080
+      3000
     ],
-    "declared_volumes": [],
-    "image_healthcheck": [
-      "CMD-SHELL",
-      "python healthcheck.py"
+    "declared_volumes": [
+      "/app/data/storage"
     ],
-    "digest": "daya0576/beaverhabits@sha256:6cd7e464207369785c88cfd59f99c6cc44ec57f3a8d90c3439908da42271d69f",
-    "architecture": "x86_64",
-    "platforms": [],
-    "http_client_in_image": "",
-    "trial_run": {
-      "ok": false,
-      "http_code": "",
-      "state": "exited",
-      "paths": [],
-      "host_port": 18000,
-      "log_tail": "21, in connect\n    await_only(connection),\n    ~~~~~~~~~~^^^^^^^^^^^^\n  File \"/opt/pysetup/.venv/lib/python3.14/site-packages/sqlalchemy/util/_concurrency_py3k.py\", line 132, in await_only\n    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501\n           ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^\n  File \"/opt/pysetup/.venv/lib/python3.14/site-packages/sqlalchemy/util/_concurrency_py3k.py\", line 196, in greenlet_spawn\n    value = await result\n            ^^^^^^^^^^^^\n  File \"/opt/pysetup/.venv/lib/python3.14/site-packages/aiosqlite/core.py\", line 168, in _connect\n    self._connection = await future\n                       ^^^^^^^^^^^^\n  File \"/opt/pysetup/.venv/lib/python3.14/site-packages/aiosqlite/core.py\", line 63, in _connection_worker_thread\n    result = function()\n  File \"/opt/pysetup/.venv/lib/python3.14/site-packages/aiosqlite/core.py\", line 466, in connector\n    return sqlite3.connect(loc, **kwargs)\n           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^\nsqlalchemy.exc.OperationalError: (sqlite3.OperationalError) unable to open database file\n(Background on this error at: https://sqlalche.me/e/20/e3q8)\n\n[2026-11-10 04:59:36 +0000] [11] [ERROR] Application startup failed. Exiting.\n[2026-11-10 04:59:36 +0000] [11] [INFO] Worker exiting (pid: 11)\n[2026-11-10 04:59:36 +0000] [9] [ERROR] Worker (pid:11) exited with code 3.\n[2026-11-10 04:59:36 +0000] [9] [ERROR] Shutting down: Master\n[2026-11-10 04:59:36 +0000] [9] [ERROR] Reason: Worker failed to boot.",
-      "files_in_mounts": ""
-    },
-    "docker_hub": {},
-    "github": {
-      "owner": "daya0576",
-      "repo": "beaverhabits",
-      "description": "A self-hosted habit tracking app without \"Goals\"",
-      "license": "BSD-3-Clause",
-      "homepage": "https://beaverhabits.com/demo"
+    "image_healthcheck": null,
+    "http_client_in_image": "node (used by the package healthcheck)",
+    "base_image": "Alpine Linux with Node.js 22.22.3 (image built 2026-05-21)",
+    "verified": {
+      "date": "2026-11-22",
+      "run_as": "uid=1000 gid=1000",
+      "http_root": 200,
+      "http_health": "{\"status\":\"ok\",\"info\":{\"database\":{\"status\":\"up\"},\"redis\":{\"status\":\"up\"}}}",
+      "first_run_setup": "POST /api/auth/setup -> 200 (workspace and admin account created)",
+      "login": "POST /api/auth/login -> 200",
+      "telemetry": "disabled in the package via DISABLE_TELEMETRY=true"
     }
   },
   "healthcheck": [
     "CMD",
     "node",
     "-e",
-    "require('http').get('http://127.0.0.1:3000/',r=>process.exit(r.statusCode<500?0:1)).on('error',()=>process.exit(1))"
+    "require('http').get('http://127.0.0.1:3000/api/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
   ],
-  "entrypoint_file": "specs/docmost-entrypoint.sh",
+  "entrypoint_file": "src/entrypoint.sh",
   "platform": "x86_64",
   "user": "1000:1000",
   "publisher": "Moechz",
@@ -86,25 +85,43 @@
   "github_repo": "docmost",
   "upstream_version": "0.90.0",
   "release_tag_prefix": "v",
-  "version": "0.90.0-3",
-  "help": "https://github.com/Moechz/docmost/issues",
+  "version": "0.90.0-5",
+  "help": "https://github.com/Moechz/docmost/blob/main/PRIVACY.md",
   "official": "https://github.com/docmost/docmost",
   "license": "AGPL-3.0",
   "docker_socket": false,
   "group_add": [],
+  "host_port": 8087,
+  "healthcheck_start_period": "180s",
   "platforms": [
     "x86_64",
     "aarch64"
   ],
   "translations": {
     "zh-cn": {
-      "descript": "习惯打卡与连续天数统计，界面简洁。",
-      "important": "首次使用请打开网页完成初始化。数据保存在 DockerAppData/beaverhabitsdocker，重启和升级不会丢失。容器以 uid 1000 运行，挂载目录需对该用户可读。需要 DockerEngine；Docker Hub 不可达时先配置镜像加速。卸载并删除数据前请备份。局域网内为 HTTP。"
+      "descript": "Docmost 是自建的团队 Wiki 与文档协作平台：空间、嵌套页面、多人实时协同编辑、评论、页面权限、附件、全文检索、版本历史与公开分享。所有内容保存在 NAS 的应用数据目录，数据库与缓存仅容器内部访问，容器以非 root 运行。",
+      "important": "需要 DockerEngine。首次打开按向导创建工作区与管理员账号；账号、页面、评论、附件与权限保存在 DockerAppData/docmostdocker/，重启和升级不丢失。默认未配置邮件服务，邀请/重置链接写入容器日志，正式使用请配置 SMTP。界面为 HTTP，公网访问前请加 TLS 反向代理。卸载时删除数据目录会永久清除全部内容。",
+      "release_note": "按上轮审核意见整改（C3/C4/C5/C7/C9/C10/F1/F5/T1）：补全隐私政策，覆盖页面、附件、账号、会话与 WebSocket 协同；重写描述与 23 语文件；补全 README、NOTICE 与仓库目录结构；加固三容器栈（固定镜像、逐服务健康检查、延长首次启动宽限、关闭遥测、Redis 开启 AOF）；T1 采用当前上游 0.90.0 并固定 PostgreSQL 16.16 / Redis 8.10.3 补丁版本。"
     },
     "zh-hk": {
-      "descript": "习惯打卡与连续天数统计，界面简洁。",
-      "important": "首次使用請開啟網頁完成初始化。資料保存在 DockerAppData/beaverhabitsdocker，重新啟動和升級不會遺失。容器以 uid 1000 運行，掛載目錄需對該使用者可讀。需要 DockerEngine；Docker Hub 不可達時先設定鏡像加速。解除安裝並刪除資料前請備份。區域網路內為 HTTP。"
+      "descript": "Docmost 是自建的團隊 Wiki 與文件協作平台：空間、巢狀頁面、多人即時協同編輯、留言、頁面權限、附件、全文檢索、版本歷史與公開分享。所有內容保存在 NAS 的應用資料目錄，資料庫與快取僅容器內部存取，容器以非 root 執行。",
+      "important": "需要 DockerEngine。首次開啟依精靈建立工作區與管理員帳號；帳號、頁面、留言、附件與權限保存在 DockerAppData/docmostdocker/，重新啟動和升級不會遺失。預設未設定郵件服務，邀請/重設連結會寫入容器日誌，正式使用請設定 SMTP。介面為 HTTP，公開到互聯網前請加 TLS 反向代理。解除安裝時刪除資料目錄會永久清除全部內容。",
+      "release_note": "依上輪審核意見整改（C3/C4/C5/C7/C9/C10/F1/F5/T1）：補齊隱私政策，涵蓋頁面、附件、帳號、工作階段與 WebSocket 協同；重寫描述與 23 語檔案；補齊 README、NOTICE 與倉庫目錄結構；加固三容器棧（固定映像、逐服務健康檢查、延長首次啟動寬限、關閉遙測、Redis 啟用 AOF）；T1 採用目前上游 0.90.0 並固定 PostgreSQL 16.16 / Redis 8.10.3 修補版本。"
     }
   },
-  "host_port": 8087
+  "data_notes": "Three host paths, all below `/Volume1/DockerAppData/docmostdocker/`: `storage/` -> `/app/data/storage` keeps uploaded attachments, avatars, page covers/icons and the generated `.app_secret`; `db/` -> `/var/lib/postgresql/data` keeps the PostgreSQL cluster (PGDATA is `db/pgdata`), which is the system of record for pages, comments, accounts, sessions and permissions; `redis/` -> `/data` keeps the Redis AOF (cache, queues, rate limits and WebSocket pub/sub).",
+  "design_notes": [
+    "**Three services, one published port.** Only the Docmost app publishes 8087 -> 3000; PostgreSQL and Redis are on the private Compose network and are never reachable from the LAN.",
+    "**Non-root everywhere.** Every service pins `user: \"1000:1000\"`; there is no privileged mode, host network, Docker socket or added capability.",
+    "**APP_SECRET is generated, never shipped.** The wrapper writes a 96-hex-character secret to `/app/data/storage/.app_secret` (mode 0600) on first start and reuses it across restarts and upgrades.",
+    "**Cache is disposable, but persistent.** Redis runs with `--appendonly yes` so a restart does not lose the queue/pub-sub state; the database remains the source of truth.",
+    "**Telemetry off.** `DISABLE_TELEMETRY=true` is set explicitly; the upstream telemetry client therefore never posts to `tel.docmost.com`."
+  ],
+  "limitations": [
+    "- The UI is plain HTTP on the LAN; use a TLS reverse proxy before exposing it to the internet.",
+    "- The default `MAIL_DRIVER=log` writes invitation and password-reset links to the container log. Configure SMTP/Postmark if you need real mail delivery.",
+    "- `APP_URL` is set to `http://localhost:8087` because the NAS LAN address is not known at install time. If you use e-mail invitations or SSO, change it to `http://<NAS-IP>:8087` in the Compose file and recreate the container.",
+    "- Advanced storage (S3/Azure), search (Typesense), AI providers and Gotenberg PDF export are supported by upstream but are not configured by this package; enabling them sends data to the endpoint you choose.",
+    "- T1: Docmost 0.90.0 is the current upstream release and the image tag is pinned; PostgreSQL 16.16 and Redis 8.10.3 are pinned to current patch releases. CVEs in Docmost's bundled Node dependencies require an upstream rebuild."
+  ]
 }

@@ -23,12 +23,22 @@ SOFTWARE.
 -------------------------------------------------------------------------------
 Third-party notices
 
-Docmost is Copyright its upstream authors and is distributed under
-AGPL-3.0. This repository only packages the
-official container image `docmost/docmost:0.90.0` from Docker Hub unmodified; no
-upstream source code is distributed here. All trademarks belong to their owners.
-This is an independent community package, not affiliated with the upstream
-project or TerraMaster.
+Docmost is Copyright Docmost, Inc. and contributors and is distributed under
+the GNU Affero General Public License v3.0 (AGPL-3.0). This repository only
+packages the official container image `docmost/docmost:0.90.0`
+(digest `docmost/docmost@sha256:3be8d60d9d5fb84738d2eca5616646e4ee8fd3df8c3524c74ed1050089391afc`)
+from Docker Hub unmodified; no upstream source code is distributed here.
+
+PostgreSQL is Copyright The PostgreSQL Global Development Group and is
+distributed under the PostgreSQL License. Redis is Copyright Redis Ltd. and is
+distributed under AGPL-3.0 (Redis 8 is also offered under RSALv2/SSPLv1).
+The package pulls the official images
+`postgres:16.16-alpine` and `redis:8.10.3-alpine`; it does not redistribute
+their binaries. See `NOTICE.md` for the complete attribution and image digests.
+
+All trademarks belong to their owners. This is an independent community
+package, not affiliated with Docmost, Inc. or TerraMaster.
 
 TOSAppSelfTestingTool is an official TerraMaster utility, redistributed here
-unmodified for local package validation.
+unmodified for local package validation. It is not covered by the MIT license
+above; use is subject to TerraMaster's terms.

@@ -8,7 +8,8 @@
 # --- internal project documents: kept locally, never published ---
 AGENTS.md
 HANDOFF.md
-/docs/
+# Note: /docs/ is intentionally published (docs/OPERATIONS.md) and must NOT be
+# ignored; C10 requires the operations guide to be readable in the repository.
 
 # --- build machine noise ---
 .DS_Store

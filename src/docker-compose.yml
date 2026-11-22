@@ -1,13 +1,15 @@
 # ===========================================================================
 # Docmost for TerraMaster TOS 7 (multi-container Docker application)
 # ===========================================================================
-# App image : docmost/docmost:0.90.0 (Docker Hub)
-# Database  : postgres:16-alpine (internal only)
-# Cache     : redis:7-alpine (internal only)
+# App image : docmost/docmost:0.90.0 (Docker Hub, pinned)
+# Database  : postgres:16.16-alpine (internal only, pinned patch release)
+# Cache     : redis:8.10.3-alpine (internal only, pinned patch release)
 #
 # Only the app publishes a host port. PostgreSQL and Redis live on the
 # compose network and are not reachable from the LAN. Every container runs
 # as uid 1000; the app generates its own APP_SECRET on first start.
+# Telemetry is disabled explicitly, so the package never contacts
+# tel.docmost.com.
 #
 # NOTE for maintainers: never place a comment line directly in front of a
 # "- value" sequence item (ports, volumes, ...): the official installer
@@ -36,20 +38,22 @@ services:
       APP_URL: "http://localhost:8087"
       DATABASE_URL: "postgresql://docmost@docmostdocker-db:5432/docmost"
       REDIS_URL: "redis://docmostdocker-redis:6379"
+      DISABLE_TELEMETRY: "true"
     volumes:
       - /Volume1/DockerAppData/docmostdocker/storage:/app/data/storage
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3000/',r=>process.exit(r.statusCode<500?0:1)).on('error',()=>process.exit(1))"]
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3000/api/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"]
       interval: 30s
       timeout: 10s
-      retries: 5
-      start_period: 60s
+      retries: 10
+      start_period: 180s
 
   docmostdocker-db:
-    image: postgres:16-alpine
+    image: postgres:16.16-alpine
     container_name: docmostdocker-db
     restart: unless-stopped
     user: "1000:1000"
+    shm_size: "256mb"
     environment:
       TZ: "Asia/Shanghai"
       POSTGRES_USER: "docmost"
@@ -59,27 +63,28 @@ services:
     volumes:
       - /Volume1/DockerAppData/docmostdocker/db:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U docmost -d docmost"]
+      test: ["CMD-SHELL", "pg_isready -U docmost -d docmost -h 127.0.0.1"]
       interval: 15s
       timeout: 5s
       retries: 10
-      start_period: 30s
+      start_period: 120s
 
   docmostdocker-redis:
-    image: redis:7-alpine
+    image: redis:8.10.3-alpine
     container_name: docmostdocker-redis
     restart: unless-stopped
     user: "1000:1000"
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
     environment:
       TZ: "Asia/Shanghai"
     volumes:
       - /Volume1/DockerAppData/docmostdocker/redis:/data
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli ping | grep -q PONG"]
+      test: ["CMD-SHELL", "redis-cli -h 127.0.0.1 ping | grep -q PONG"]
       interval: 15s
       timeout: 5s
       retries: 10
-      start_period: 15s
+      start_period: 30s
 
 # TOS App Center web metadata (must be the last block of the file):
 # web.port is the published host port above, protocol is http.
